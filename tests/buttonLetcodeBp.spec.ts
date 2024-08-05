@@ -15,7 +15,7 @@ test.describe('navigate to https://letcode.in/test', () => {
     await browser.close();
   });
 
-  test('letcode - edit', async () => {
+  test('letcode - button', async () => {
     await test.step('I am in https://letcode.in/test', async () => {
       await page.goto('https://letcode.in/test');
       await expect(page).toHaveTitle('LetCode - Testing Hub');
