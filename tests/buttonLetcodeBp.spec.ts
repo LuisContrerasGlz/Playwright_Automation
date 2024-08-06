@@ -11,7 +11,6 @@ test.describe('navigate to https://letcode.in/test', () => {
   });
 
   test.afterAll(async () => {
-    await page.waitForTimeout(3000);
     await browser.close();
   });
 
