@@ -115,10 +115,10 @@ test.describe('navigate to https://letcode.in/test', () => {
       await expect(activePage2Button).toBeVisible({ timeout: 10000 });
     });
 
-    await test.step('select first', async () => {
-      const firstPageButton = page.locator('#advancedtable_paginate').locator('a.paginate_button', { hasText: 'First' });
-      await expect(firstPageButton).toBeVisible({ timeout: 10000 }); 
-      await firstPageButton.click();
+    await test.step('select Previous', async () => {
+      const previousPageButton = page.locator('#advancedtable_paginate').locator('a.paginate_button', { hasText: 'Previous' });
+      await expect(previousPageButton).toBeVisible({ timeout: 10000 }); 
+      await previousPageButton.click();
 
       const activePage1Button = page.locator('#advancedtable_paginate').locator('a.paginate_button.current', { hasText: '1' });
       await expect(activePage1Button).toBeVisible({ timeout: 10000 });
@@ -143,7 +143,14 @@ test.describe('navigate to https://letcode.in/test', () => {
       await expect(lastPageButton).toHaveText(lastPageNumber);
     });
 
+    await test.step('select first', async () => {
+      const firstPageButton = page.locator('#advancedtable_paginate').locator('a.paginate_button', { hasText: 'First' });
+      await expect(firstPageButton).toBeVisible({ timeout: 10000 }); 
+      await firstPageButton.click();
 
+      const activePage1Button = page.locator('#advancedtable_paginate').locator('a.paginate_button.current', { hasText: '1' });
+      await expect(activePage1Button).toBeVisible({ timeout: 10000 });
+    });
 
 
   });
