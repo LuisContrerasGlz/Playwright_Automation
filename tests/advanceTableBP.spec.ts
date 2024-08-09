@@ -9,7 +9,7 @@ test.describe('navigate to https://letcode.in/test', () => {
     const context = await browser.newContext();
     page = await context.newPage();
   });
-
+  
   test.afterAll(async () => {
     await browser.close();
   });
