@@ -1,4 +1,6 @@
 import { test, expect, chromium, Browser, Page } from '@playwright/test';
+import { buttonLetcodePages } from './pages/buttonLetcodePages';
+
 
 let browser: Browser;
 let page: Page;
@@ -11,6 +13,7 @@ test.describe('navigate to https://letcode.in/test', () => {
   });
 
   test.afterAll(async () => {
+    await page.waitForTimeout(5000);
     await browser.close();
   });
 
@@ -20,26 +23,22 @@ test.describe('navigate to https://letcode.in/test', () => {
       await expect(page).toHaveTitle('LetCode - Testing Hub');
     });
 
+    const buttonsLetcode = new buttonLetcodePages(page); 
     await test.step('click on "button"', async () => {
-      const buttonLink = page.getByRole('link', { name: 'Click' });
-      await buttonLink.click();
+      await buttonsLetcode.buttonLinkClick();
       await expect(page).toHaveURL('https://letcode.in/buttons');
     });
 
     await test.step('click on "Goto Home and come back here"', async () => {
-      const buttonLink = page.getByLabel('Goto Home and come back here');
-      await buttonLink.click();
+      //const buttonLink = page.getByLabel('Goto Home and come back here');
+      await buttonsLetcode.goHomeClick();
       await expect(page).toHaveURL('https://letcode.in/');
-    });
-
-    await test.step('go back to the previous page', async () => {
       await page.goBack();
       await expect(page).toHaveURL('https://letcode.in/buttons');
     });
 
     await test.step('Get the X & Y co-ordinates', async () => {
-        const buttonLink = page.getByRole('button',{name:'Find Location'})
-        const boundingBox = await buttonLink.boundingBox();
+        const boundingBox = await buttonsLetcode.boundigBoxFindLocation();
         if (boundingBox) {
           console.log(`X: ${boundingBox.x}, Y: ${boundingBox.y}`);
         } else {
@@ -48,14 +47,12 @@ test.describe('navigate to https://letcode.in/test', () => {
     });
 
     await test.step('Find the color of the button', async () => {
-        const buttonColor = page.getByLabel('Find the color of the button')
-        const color = await buttonColor.evaluate(el => window.getComputedStyle(el).color);
+        const color = await buttonsLetcode.colorButtonColor();
         console.log(`Button color: ${color}`);
     });
 
     await test.step('Find the height & width of the button', async () => {
-        const heightButton = page.getByRole('button',{name:'How tall & fat I am?'})
-        const boundingBox = await heightButton.boundingBox();
+        const boundingBox = await buttonsLetcode.howTallFatButton()
         if (boundingBox) {
           console.log(`Height: ${boundingBox.height}px, Width: ${boundingBox.width}px`);
         } else {
@@ -64,13 +61,12 @@ test.describe('navigate to https://letcode.in/test', () => {
     });
 
     await test.step('button is disabled', async () => {
-        const buttonDisabled = page.getByRole('button',{name:'Disabled'}) 
-        const isDisabled = await buttonDisabled.isDisabled();
+        const isDisabled = await buttonsLetcode.isDisabledButton();
         console.log('button is disabled:', isDisabled);
     });
 
     await test.step('Click and Hold Button', async () => {
-        const clickHoldButton = page.getByRole('button', { name: 'Button Hold!' });
+        const clickHoldButton = buttonsLetcode.clickHoldButton;
         const boundingBox = await clickHoldButton.boundingBox();
         if (boundingBox) {
           // Calculate the center of the button to click and hold
