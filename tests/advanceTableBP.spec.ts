@@ -1,11 +1,12 @@
 import { test, expect, chromium, Browser, Page } from '@playwright/test';
+import { advancedTable } from './pages/advanceTablePage';
 
 let browser: Browser;
 let page: Page;
 
 test.describe('navigate to https://letcode.in/test', () => {
   test.beforeAll(async () => {
-    browser = await chromium.launch({ headless: true });
+    browser = await chromium.launch({ headless: false });
     const context = await browser.newContext();
     page = await context.newPage();
   });
@@ -20,42 +21,35 @@ test.describe('navigate to https://letcode.in/test', () => {
       await expect(page).toHaveTitle('LetCode - Testing Hub');
     });
 
+    const advancetable = new advancedTable(page);
     await test.step('click on "Table" link', async () => {
-      const buttonLink = page.getByRole('link', { name: 'Advance Table' });
-      await buttonLink.click();
+      await advancetable.buttonLinkClick();
       await expect(page).toHaveURL('https://letcode.in/advancedtable');
     });
 
     await test.step('Select 10 entries', async () => {
-      const dropdown = page.locator('#advancedtable_length select');;
-      await expect(dropdown).toBeVisible();
-      await dropdown.selectOption({ label: '10' });
-      const selectedText = await dropdown.evaluate(el => {
-          const selectElement = el as HTMLSelectElement;
-          const selectedOption = selectElement.options[selectElement.selectedIndex];
-          return selectedOption ? selectedOption.text : '';
-      });
+      const atLengthSelector = advancetable.atLengthSelector;
+      await expect(atLengthSelector).toBeVisible();
+      await advancetable.aleSelectOption('10');
+      const selectedText = await advancetable.aleSelectedOption();
       console.log('Selected text:', selectedText);
       await expect(selectedText).toBe('10');
 
-      const namesTable = page.locator('#advancedtable');
+      const namesTable = advancetable.namesTable;
       await expect(namesTable).toBeVisible({ timeout: 10000 });
 
-      const rows = namesTable.locator('tbody tr');
-      const rowCount = await rows.count();
+      const rows = advancetable.rowsNamesTable;
+      const rowCount = await advancetable.countRowsNamesTable();
       console.log('rowCount ', rowCount);
       await expect(rowCount).toBe(10);
     });
 
     await test.step('Search University of Abertay Dundee', async () => {
-      const searchText = page.getByLabel('Search:');
-      await expect(searchText).toBeVisible();
-      await searchText.fill('Abertay');
-      const namesTable = page.locator('#advancedtable');
-      await expect(namesTable).toBeVisible({ timeout: 10000 });
-
-      const rows = namesTable.locator('tbody tr');
-      const rowCount = await rows.count();
+      const searchText = advancetable.searchText;
+      await expect(searchText).toBeVisible();//
+      await advancetable.fillSearch('Abertay');
+      const rowCount = await advancetable.countRowsNamesTable();
+      const rows = advancetable.rowsNamesTable;
       console.log('rowCount ', rowCount);
       await expect(rowCount).toBe(1);
 
@@ -69,7 +63,7 @@ test.describe('navigate to https://letcode.in/test', () => {
     });
 
     await test.step('click on column S.NO header to sort', async () => {
-      const columnHeader = page.locator('#advancedtable thead th').first();
+      const columnHeader = advancetable.columnHeader.first();
       await expect(columnHeader).toBeVisible({ timeout: 10000 });
       await columnHeader.click();
       await expect(columnHeader).toHaveClass(/sorting_asc|sorting_desc/);
@@ -78,7 +72,7 @@ test.describe('navigate to https://letcode.in/test', () => {
     });
 
     await test.step('click on column UNIVERSITY NAME header to sort', async () => {
-      const columnHeader = page.locator('#advancedtable thead th').nth(1);
+      const columnHeader = advancetable.columnHeader.nth(1);
       await expect(columnHeader).toBeVisible({ timeout: 10000 });
       await columnHeader.click();
       await expect(columnHeader).toHaveClass(/sorting_asc|sorting_desc/);
@@ -87,7 +81,7 @@ test.describe('navigate to https://letcode.in/test', () => {
     });
 
     await test.step('click on column COUNTRY header to sort', async () => {
-      const columnHeader = page.locator('#advancedtable thead th').nth(2);
+      const columnHeader = advancetable.columnHeader.nth(2);
       await expect(columnHeader).toBeVisible({ timeout: 10000 });
       await columnHeader.click();
       await expect(columnHeader).toHaveClass(/sorting_asc|sorting_desc/);
@@ -96,7 +90,7 @@ test.describe('navigate to https://letcode.in/test', () => {
     });
 
     await test.step('click on column WEBSITE header to sort', async () => {
-      const columnHeader = page.locator('#advancedtable thead th').nth(3);
+      const columnHeader = advancetable.columnHeader.nth(3);
       await expect(columnHeader).toBeVisible({ timeout: 10000 });
       await columnHeader.click();
       await expect(columnHeader).toHaveClass(/sorting_asc|sorting_desc/);
@@ -104,54 +98,38 @@ test.describe('navigate to https://letcode.in/test', () => {
       await expect(columnHeader).toHaveClass(/sorting_asc|sorting_desc/);
     });
 
-
-
     await test.step('select page 2', async () => {
-      const page2Button = page.locator('#advancedtable_paginate').locator('a.paginate_button', { hasText: '2' });
-      await expect(page2Button).toBeVisible({ timeout: 10000 }); 
-      await page2Button.click();
-
-      const activePage2Button = page.locator('#advancedtable_paginate').locator('a.paginate_button.current', { hasText: '2' });
-      await expect(activePage2Button).toBeVisible({ timeout: 10000 });
+      await advancetable.selectPage('2');
+      const isPage2Active = await advancetable.isPageActive('2');
+      await expect(isPage2Active).toBeTruthy();
     });
 
     await test.step('select Previous', async () => {
-      const previousPageButton = page.locator('#advancedtable_paginate').locator('a.paginate_button', { hasText: 'Previous' });
-      await expect(previousPageButton).toBeVisible({ timeout: 10000 }); 
-      await previousPageButton.click();
-
-      const activePage1Button = page.locator('#advancedtable_paginate').locator('a.paginate_button.current', { hasText: '1' });
-      await expect(activePage1Button).toBeVisible({ timeout: 10000 });
+      await advancetable.selectPrevious();
+      const isPage1Active = await advancetable.isPageActive('1');
+      await expect(isPage1Active).toBeTruthy();
     });
 
     await test.step('select next', async () => {
-      const nextPageButton = page.locator('#advancedtable_paginate').locator('a.paginate_button', { hasText: 'Next' });
-      await expect(nextPageButton).toBeVisible({ timeout: 10000 }); 
-      await nextPageButton.click();
-
-      const activePage2Button = page.locator('#advancedtable_paginate').locator('a.paginate_button.current', { hasText: '2' });
-      await expect(activePage2Button).toBeVisible({ timeout: 10000 });
+      await advancetable.selectNext();
+      const isPage2ActiveAgain = await advancetable.isPageActive('2');
+      await expect(isPage2ActiveAgain).toBeTruthy();
     });
 
     await test.step('select last', async () => {
-      const lastPageButton = page.locator('#advancedtable_paginate').locator('a.paginate_button', { hasText: 'Last' });
+      const lastPageButton = advancetable.lastPageButton;
       await expect(lastPageButton).toBeVisible({ timeout: 10000 }); 
       await lastPageButton.click();
-
-      const pageButtons = page.locator('#advancedtable_paginate').locator('a.paginate_button');
+      const pageButtons = advancetable.pageButtons;
       const lastPageNumber = await pageButtons.last().innerText();
       await expect(lastPageButton).toHaveText(lastPageNumber);
     });
 
     await test.step('select first', async () => {
-      const firstPageButton = page.locator('#advancedtable_paginate').locator('a.paginate_button', { hasText: 'First' });
-      await expect(firstPageButton).toBeVisible({ timeout: 10000 }); 
-      await firstPageButton.click();
-
-      const activePage1Button = page.locator('#advancedtable_paginate').locator('a.paginate_button.current', { hasText: '1' });
-      await expect(activePage1Button).toBeVisible({ timeout: 10000 });
+        await advancetable.selectPage('First');
+        const isPage1Active = await advancetable.isPageActive('1');
+        await expect(isPage1Active).toBeTruthy();
     });
-
 
   });
 });
